@@ -1,0 +1,196 @@
+
+#!/bin/bash
+
+add_user() {
+    echo -n "Enter the username to add: "
+    read username
+    sudo useradd -m $username
+
+    if [ $? -eq 0 ]; then
+        echo "User $username added successfully."
+    else
+        echo "Failed to add user $username."
+    fi
+}
+
+modify_user() {
+    echo -n "Enter the username to modify: "
+    read username
+    echo -n "Enter the new username: "
+    read new_username
+    sudo usermod -l $new_username $username
+
+    if [ $? -eq 0 ]; then
+        echo "Username changed successfully from $username to $new_username."
+    else
+        echo "Failed to change username."
+    fi
+}
+
+delete_user() {
+    echo -n "Enter the username to delete: "
+    read username
+    sudo userdel $username
+    if [ $? -eq 0 ]; then
+        echo "User $username deleted successfully."
+    else
+        echo "Failed to delete user $username."
+    fi
+}
+
+list_users() {
+    echo "List of users:"
+    cut -d: -f1 /etc/passwd
+}
+
+add_group() {
+    echo -n "Enter the group name to add: "
+    read groupname
+    sudo groupadd $groupname
+    if [ $? -eq 0 ]; then
+        echo "Group $groupname added successfully."
+    else
+        echo "Failed to add group $groupname ."
+    fi
+
+}
+
+modify_group() {
+    echo -n "Enter the group name to modify: "
+    read groupname
+    echo "What would you like to modify?"
+    echo "1. Rename group"
+    echo "2. Add user to group"
+    echo "3. Remove user from group"
+    read mod_choice
+
+    case $mod_choice in
+        1)
+            echo -n "Enter the new group name: "
+            read new_groupname
+            sudo groupmod -n $new_groupname $groupname
+            ;;
+        2)
+            echo -n "Enter the username to add to the group: "
+            read username
+            sudo usermod -a -G $groupname $username
+            ;;
+        3)
+            echo -n "Enter the username to remove from the group: "
+            read username
+            sudo gpasswd -d $username $groupname
+            ;;
+        *)
+            echo "Invalid option"
+            ;;
+    esac
+}
+
+delete_group() {
+    echo -n "Enter the group name to delete: "
+    read groupname
+    sudo groupdel $groupname
+    if [ $? -eq 0 ]; then
+        echo "Group $groupname deleted successfully."
+    else
+        echo "Failed to delete group $groupname ."
+    fi
+
+}
+
+list_groups() {
+    echo "List of groups:"
+    cut -d: -f1 /etc/group
+}
+
+disable_user() {
+    echo -n "Enter the username to disable: "
+    read username
+    sudo usermod -L $username
+    if [ $? -eq 0 ]; then
+        echo "disable  successfully $username ."
+    else
+        echo "Failed to disable $username."
+    fi
+
+}
+
+enable_user() {
+    echo -n "Enter the username to enable: "
+    read username
+ 
+    echo -n "Enter a new password for $username: "
+    read -s password
+    
+    echo "$username:$password" | sudo chpasswd
+    sudo usermod -U $username
+
+    if [ $? -eq 0 ]; then
+        echo "User $username enabled successfully."
+    else
+        echo "Failed to enable user $username. 
+."
+    fi
+}
+
+
+change_password() {
+    echo -n "Enter the username to change password: "
+    read username
+    sudo passwd $username
+    if [ $? -eq 0 ]; then
+        echo "user $username changed password successfully."
+    else
+        echo "Failed to change password user $username ."
+    fi
+
+
+}
+
+about() {
+    echo "Main Script manages user and group accounts with functions to add, modify, delete, list, enable, and disable "
+    echo "Version 1.0"
+    echo "Created by Tyseer Abbas"
+}
+
+while true; do
+    clear
+    echo "Main Menu"
+    echo "----------------------"
+    echo "1. Add User"
+    echo "2. Modify User"
+    echo "3. Delete User"
+    echo "4. List Users"
+    echo "5. Add Group"
+    echo "6. Modify Group"
+    echo "7. Delete Group"
+    echo "8. List Groups"
+    echo "9. Disable User"
+    echo "10. Enable User"
+    echo "11. Change Password"
+    echo "12. About"
+    echo "13. Exit"
+    echo "----------------------"
+    echo -n "Please enter your choice [1-13]: "
+
+    read choice
+    case $choice in
+        1) add_user;;
+        2) modify_user;;
+        3) delete_user;;
+        4) list_users;;
+        5) add_group;;
+        6) modify_group;;
+        7) delete_group;;
+        8) list_groups;;
+        9) disable_user;;
+        10) enable_user;;
+        11) change_password;;
+        12) about;;
+        13) echo "Exiting..."; exit 0;;
+        *) echo "Invalid choice, please try again.";;
+    esac
+    echo -n "Press Enter to continue"
+    read
+done
+
